@@ -1,3 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@keyframes rotateGradient {
+    to { 
+        transform: rotate(-360deg);
+        background-position: 100% 50%;
+    }
+  }

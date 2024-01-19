@@ -8,7 +8,7 @@ function App() {
 
   return (
     <>
-    <main className='w-full bg-slate-600'>
+    <main className=''>
       <Creator />
       {/* container for the oscillators */}
       <div id="container-oscillators">
