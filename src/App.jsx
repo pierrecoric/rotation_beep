@@ -8,7 +8,26 @@ function App() {
 
   return (
     <>
-    <main className=''>
+    <main className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 '>
+      <Creator />
+      <Creator />
+      <Creator />
+      <Creator />
+      <Creator />
+      <Creator />
+      <Creator />
+      <Creator />
+      <Creator />
+      <Creator />
+      <Creator />
+      <Creator />
+      <Creator />
+      <Creator />
+      <Creator />
+      <Creator />
+      <Creator />
+      <Creator />
+      <Creator />
       <Creator />
       {/* container for the oscillators */}
       <div id="container-oscillators">
