@@ -32,15 +32,15 @@ const generateBackgroundGradient = () => {
     return {degBackgroundPreview, pick1, pick2};
 };
 
-export const Creator = () => {
+export const Osc = (props) => {
     //Initial States
     //------------------------------
     //Initial frequency.
-    const [frequency, setFrequency] = useState(220);
+    const [frequency, setFrequency] = useState(props.freq);
     //Initial fade-out time.
-    const [fadeOutTime, setFadeOutTime] = useState(0.5);
+    const [fadeOutTime, setFadeOutTime] = useState(props.fo);
     //Initial repetition time
-    const [repetitionTime, setRepetitionTime] = useState(2);
+    const [repetitionTime, setRepetitionTime] = useState(props.re);
     //Initialize the background gradient.
     const [backgroundInfo] = useState(() => generateBackgroundGradient());
     //Style for the background of the creator
@@ -93,7 +93,7 @@ export const Creator = () => {
     const sliderStyleInfo = "flex justify-between align-middle mt-1";
 
     return (
-        <div className="border-4 border-black" style={backgroundPreview}>
+        <div className="" style={backgroundPreview}>
             <div>
                 <div className="flex justify-center mt-8">
                     <div className="w-[150px] h-[150px] rounded-full" style={rotationStyle}></div>
@@ -148,9 +148,6 @@ export const Creator = () => {
                             <span>Repeat every: </span>
                             <span>{repetitionTime} sec</span>
                         </div>
-                    </label>
-                    <label className="w-full flex align-middle justify-center mt-8 mb-8">
-                        <input type="submit" value="create" className="bg-black text-white hover:bg-white hover:text-black hover:cursor-pointer pt-1 pb-1 pr-2 pl-2 rounded-xl" />
                     </label>
                 </form>
             </div>
