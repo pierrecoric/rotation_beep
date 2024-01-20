@@ -1,8 +1,14 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 
 //Initialize minimal and maximal frequency for the oscillators.
 const minFrequency = 55;
 const maxFrequency = 880;
+//HERE IS THE PROBLEM THIS CONTEXT HAS TO BE ISOLATED TO EACH OCCURENCE OF THE COMPONENT
+let context;
+//Create variables to store the oscillators and its parameters.
+let oscillator;
+let gainOsc;
+let repetition;
 
 //Utilitarian functions
 //------------------------------
@@ -33,6 +39,7 @@ const generateBackgroundGradient = () => {
 };
 
 export const Osc = (props) => {
+    
     //Initial States
     //------------------------------
     //Initial frequency.
@@ -47,22 +54,84 @@ export const Osc = (props) => {
     const backgroundPreview = {
         background: `linear-gradient(${backgroundInfo.degBackgroundPreview}deg, ${colorValues[backgroundInfo.pick1]}, ${colorValues[backgroundInfo.pick2]})`
     }
+    const [audioContext, setAudioContext] = useState(null);
+    const [remountKey, setRemountKey] = useState(0);
     //------------------------------
 
+    //Function to reset the animation of the rotating div.
+    const resetAnimation = () => {
+        setRemountKey((prevKey) => prevKey + 1);
+    };
+
+
+    //Function to start the sound of an oscillator.
+    function start(frequency, fadeOutTime) {
+        context = new AudioContext;
+        oscillator = context.createOscillator();
+        oscillator.type = "sine";
+        oscillator.frequency.value = frequency;
+        gainOsc = context.createGain();
+        gainOsc.gain.value = 0.2;
+        oscillator.connect(gainOsc);
+        gainOsc.connect(context.destination);
+        oscillator.start();
+    }
+    //Function to stop the sound of an oscillator.
+    function stop(fadeOutTime) {
+        gainOsc.gain.setValueAtTime(gainOsc.gain.value, context.currentTime);
+        gainOsc.gain.linearRampToValueAtTime(0.00001, context.currentTime + fadeOutTime);
+        oscillator.stop(context.currentTime + fadeOutTime);
+    }
+    //Function to generate one beep.
+    function beep(frequency, fadeOutTime) {
+        start(frequency, fadeOutTime);
+        stop(fadeOutTime);
+    }
+    //Function to repeat the sound over time.
+    function beepTime(frequency, fadeOutTime, repetitionTime) {
+        if (repetition) {
+            clearInterval(repetition);
+        }
+        let interval = repetitionTime * 1000;
+        repetition = setInterval(() => beep(frequency, fadeOutTime), interval);
+    }
+
+    
+    
+    
+    //stop the current context if there is one.
+    useEffect(() => {
+        // Cleanup function
+        return () => {
+            if (context) {
+                //stop();
+                context.close().catch((error) => console.error('Error closing AudioContext:', error));
+            }
+        };
+    }, []);
+
+    //Play the new context.
+    
+
+    beepTime(frequency, fadeOutTime, repetitionTime);
+    
 
     //Functions for to handle changes from the sliders.
     //------------------------------
     //When using the frequency slider.
     const handleFrequencyChange = (event) => {
-        setFrequency(event.target.value)
+        setFrequency(event.target.value);
+        resetAnimation();
     }
     //When using the fade-out slider.
     const handleFadeOutTimeChange = (event) => {
         setFadeOutTime(event.target.value);
+        resetAnimation();
     }
     //When using the repetition time slider.
     const handleRepetitionTimeChange = (event) => {
         setRepetitionTime(event.target.value);
+        resetAnimation();
     }
     //------------------------------
 
@@ -82,7 +151,7 @@ export const Osc = (props) => {
     //Compute the procent value for the gradient.
     const gradProcent = computeProcent(fadeOutTime, repetitionTime)
     //Generate the styles for the preview of the oscillator.
-    const rotationStyle = {
+    let rotationStyle = {
         animation: `rotateGradient ${repetitionTime}s linear infinite`,
         background: `conic-gradient(from 180deg, ${computeColor(frequency)} 0%, white ${gradProcent}% 100%)`,
     };
@@ -96,7 +165,7 @@ export const Osc = (props) => {
         <div className="" style={backgroundPreview}>
             <div>
                 <div className="flex justify-center mt-8">
-                    <div className="w-[150px] h-[150px] rounded-full" style={rotationStyle}></div>
+                    <div className="w-[150px] h-[150px] rounded-full" key={remountKey} style={rotationStyle}></div>
                 </div>
                 <div className="w-full h-[20px] flex align-middle justify-center">
                     <div className="w-[5px] h-[20px] bg-white"></div>
