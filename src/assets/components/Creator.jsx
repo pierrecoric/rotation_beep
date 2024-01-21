@@ -1,4 +1,5 @@
 import React, {useState} from "react";
+import App from "../../App";
 
 //Initialize minimal and maximal frequency for the oscillators.
 const minFrequency = 55;
@@ -32,7 +33,9 @@ const generateBackgroundGradient = () => {
     return {degBackgroundPreview, pick1, pick2};
 };
 
-export const Creator = () => {
+export const Creator = (props) => {
+
+    
     //Initial States
     //------------------------------
     //Initial frequency.
@@ -92,6 +95,12 @@ export const Creator = () => {
     const sliderStyleInput = "range accent-black";
     const sliderStyleInfo = "flex justify-between align-middle mt-1";
 
+    const addOscillatorComponent= props.addOscillatorComponent;
+    const handleCreateButtonClick = (event) => {
+        event.preventDefault(); // Prevent the default form submission behavior
+        addOscillatorComponent(frequency, fadeOutTime, repetitionTime);
+    }
+
     return (
         <div className="border-4 border-black" style={backgroundPreview}>
             <div>
@@ -150,7 +159,7 @@ export const Creator = () => {
                         </div>
                     </label>
                     <label className="w-full flex align-middle justify-center mt-8 mb-8">
-                        <input type="submit" value="create" className="bg-black text-white hover:bg-white hover:text-black hover:cursor-pointer pt-1 pb-1 pr-2 pl-2 rounded-xl" />
+                        <button onClick={handleCreateButtonClick} className="bg-black text-white hover:bg-white hover:text-black hover:cursor-pointer pt-1 pb-1 pr-2 pl-2 rounded-xl">create</button>
                     </label>
                 </form>
             </div>

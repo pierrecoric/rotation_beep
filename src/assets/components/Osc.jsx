@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useGeneralAudioContext } from "../../App";
+import App from "../../App";
 
 
 //Initialize minimal and maximal frequency for the oscillators.
@@ -10,6 +11,8 @@ const maxFrequency = 880;
 let oscillator;
 let gainOsc;
 let repetition;
+
+
 
 //Utilitarian functions
 //------------------------------
@@ -40,15 +43,15 @@ const generateBackgroundGradient = () => {
 };
 
 export const Osc = (props) => {
-    
+    const id = props.id
     //Initial States
     //------------------------------
     //Initial frequency.
-    const [frequency, setFrequency] = useState(440);
+    const [frequency, setFrequency] = useState(props.freq);
     //Initial fade-out time.
-    const [fadeOutTime, setFadeOutTime] = useState(0.5);
+    const [fadeOutTime, setFadeOutTime] = useState(props.fo);
     //Initial repetition time
-    const [repetitionTime, setRepetitionTime] = useState(2);
+    const [repetitionTime, setRepetitionTime] = useState(props.rt);
     //Initialize the background gradient.
     const [backgroundInfo] = useState(() => generateBackgroundGradient());
     //Style for the background of the creator
@@ -127,6 +130,21 @@ export const Osc = (props) => {
         };
     }, [audioContext, frequency, fadeOutTime, repetitionTime]);
 
+    /*
+    const deleteOscillatorComponent= props.deleteOscillatorComponent;
+    const oscillatorsComponent=props.oscillatorsComponent;
+
+    const handleDeleteButtonClick = (event) => {
+        event.preventDefault();
+        const targetId = id;
+        console.log(targetId);
+        const indexToDelete = oscillatorsComponent.findIndex(item => item.props.id == targetId);
+        console.log(indexToDelete);
+        deleteOscillatorComponent(indexToDelete);
+    }
+    */
+    
+
     
     //Functions for to handle changes from the sliders.
     //------------------------------
@@ -185,7 +203,7 @@ export const Osc = (props) => {
                 </div>
             </div>
             <div className="flex align-middle justify-center w-full">
-                <form action="" className="flex flex-col p-8 w-full">
+                <form action="" className="flex flex-col p-8 w-full" onSubmit={(e) => e.preventDefault()}>
                     <label className={`${sliderStyleLabel}`}>
                         <input 
                             type="range"
@@ -231,6 +249,11 @@ export const Osc = (props) => {
                             <span>{repetitionTime} sec</span>
                         </div>
                     </label>
+                    {/*
+                    <label className="w-full flex align-middle justify-center mt-8 mb-8">
+                        <button onClick={handleDeleteButtonClick} className="bg-black text-white hover:bg-white hover:text-black hover:cursor-pointer pt-1 pb-1 pr-2 pl-2 rounded-xl">delete</button>
+                    </label>
+                    */}
                 </form>
             </div>
         </div>

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState } from "react";
 import './App.css'
 import { Osc } from './assets/components/Osc.jsx'
 import { Footer } from './assets/components/Footer.jsx'
+import { Creator } from "./assets/components/Creator.jsx";
 
 
 function App() {
@@ -9,10 +10,18 @@ function App() {
   const [oscillatorsComponent, setOscillatorsComponent] = useState([]);
 
   // Function to add a new Osc component
-  const addOscillatorComponent = () => {    
+  const addOscillatorComponent = (freq, fo, rt) => {    
     setOscillatorsComponent((prevOscillators) => [
     ...prevOscillators,
-    <Osc key={count}/>
+    <Osc 
+      key={count}
+      id={count}
+      freq={freq}
+      fo={fo}
+      rt={rt}
+      deleteOscillatorComponent={deleteOscillatorComponent}
+      oscillatorsComponent={oscillatorsComponent}
+    />
   ]);
   setCount((prevCount) => prevCount + 1);
   };
@@ -31,14 +40,25 @@ function App() {
     });
   };
 
+  const deleteOscillatorComponent = (id) => {
+    // Remove the oscillator at the specified index
+    setOscillatorsComponent((prevOscillators) => {
+        const updatedOscillators = [...prevOscillators];
+        updatedOscillators.splice(id, 1);
+        return updatedOscillators;
+    });
+  }
+
+
+
 
   return (
     <>
       <main className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 '>
-        {oscillatorsComponent}
-        <button onClick={addOscillatorComponent}>Add Oscillator</button>
+        <Creator addOscillatorComponent={addOscillatorComponent}/>
+        {oscillatorsComponent} 
       </main>
-      
+      <div className="h-[50px]"></div>
       <Footer />
     </>
   );
