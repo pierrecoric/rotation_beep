@@ -1,11 +1,12 @@
-import React, {useState, useEffect} from "react";
+import React, { useEffect, useState } from "react";
+import { useGeneralAudioContext } from "../../App";
+
 
 //Initialize minimal and maximal frequency for the oscillators.
 const minFrequency = 55;
 const maxFrequency = 880;
-//HERE IS THE PROBLEM THIS CONTEXT HAS TO BE ISOLATED TO EACH OCCURENCE OF THE COMPONENT
-let context;
 //Create variables to store the oscillators and its parameters.
+//let context
 let oscillator;
 let gainOsc;
 let repetition;
@@ -43,19 +44,19 @@ export const Osc = (props) => {
     //Initial States
     //------------------------------
     //Initial frequency.
-    const [frequency, setFrequency] = useState(props.freq);
+    const [frequency, setFrequency] = useState(440);
     //Initial fade-out time.
-    const [fadeOutTime, setFadeOutTime] = useState(props.fo);
+    const [fadeOutTime, setFadeOutTime] = useState(0.5);
     //Initial repetition time
-    const [repetitionTime, setRepetitionTime] = useState(props.re);
+    const [repetitionTime, setRepetitionTime] = useState(2);
     //Initialize the background gradient.
     const [backgroundInfo] = useState(() => generateBackgroundGradient());
     //Style for the background of the creator
     const backgroundPreview = {
         background: `linear-gradient(${backgroundInfo.degBackgroundPreview}deg, ${colorValues[backgroundInfo.pick1]}, ${colorValues[backgroundInfo.pick2]})`
     }
-    const [audioContext, setAudioContext] = useState(null);
     const [remountKey, setRemountKey] = useState(0);
+    const audioContext = useGeneralAudioContext();
     //------------------------------
 
     //Function to reset the animation of the rotating div.
@@ -63,59 +64,70 @@ export const Osc = (props) => {
         setRemountKey((prevKey) => prevKey + 1);
     };
 
-
-    //Function to start the sound of an oscillator.
-    function start(frequency, fadeOutTime) {
-        context = new AudioContext;
-        oscillator = context.createOscillator();
-        oscillator.type = "sine";
-        oscillator.frequency.value = frequency;
-        gainOsc = context.createGain();
-        gainOsc.gain.value = 0.2;
-        oscillator.connect(gainOsc);
-        gainOsc.connect(context.destination);
-        oscillator.start();
-    }
-    //Function to stop the sound of an oscillator.
-    function stop(fadeOutTime) {
-        gainOsc.gain.setValueAtTime(gainOsc.gain.value, context.currentTime);
-        gainOsc.gain.linearRampToValueAtTime(0.00001, context.currentTime + fadeOutTime);
-        oscillator.stop(context.currentTime + fadeOutTime);
-    }
-    //Function to generate one beep.
-    function beep(frequency, fadeOutTime) {
-        start(frequency, fadeOutTime);
-        stop(fadeOutTime);
-    }
-    //Function to repeat the sound over time.
-    function beepTime(frequency, fadeOutTime, repetitionTime) {
-        if (repetition) {
-            clearInterval(repetition);
-        }
-        let interval = repetitionTime * 1000;
-        repetition = setInterval(() => beep(frequency, fadeOutTime), interval);
-    }
-
-    
-    
-    
-    //stop the current context if there is one.
     useEffect(() => {
-        // Cleanup function
-        return () => {
-            if (context) {
-                //stop();
-                context.close().catch((error) => console.error('Error closing AudioContext:', error));
+        let oscillator;
+        let gainOsc;
+        let repetition;
+
+        //function to start the oscillator
+        function startOsc() {
+            oscillator = audioContext.createOscillator();
+            oscillator.type = "sine";
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            gainOsc = audioContext.createGain();
+            gainOsc.gain.value = 0.2;
+            oscillator.connect(gainOsc);
+            gainOsc.connect(audioContext.destination);
+            oscillator.start();
+        }
+
+        //function to stop the oscillator
+        function stopOsc(fadeOutTime) {
+            const fadeOutValue = Math.max(0.00001, fadeOutTime); // Ensure fadeOutValue is positive and finite
+          
+            // Check if fadeOutValue is a finite number
+            if (!isFinite(fadeOutValue) || isNaN(fadeOutValue)) {
+              console.error("Invalid fadeOutTime:", fadeOutTime);
+              return;
             }
+          
+            gainOsc.gain.setValueAtTime(gainOsc.gain.value, audioContext.currentTime);
+            gainOsc.gain.linearRampToValueAtTime(0.00001, audioContext.currentTime + fadeOutValue);
+            oscillator.stop(audioContext.currentTime + fadeOutValue);
+        }
+
+        //function to turn on and off an oscillator
+        function beep () {
+            startOsc();
+            stopOsc(fadeOutTime);
+        }
+
+        //beep over time
+        function beepTime(repetitionTime) {
+            // Clear the existing interval if it exists
+            if (repetition) {
+              clearInterval(repetition);
+            }
+      
+            // Set up a new interval to call beep every repetitionTime seconds
+            repetition = setInterval(() => beep(), repetitionTime * 1000);
+        }
+
+        beepTime(repetitionTime);
+
+        // Cleanup on component unmount
+        return () => {
+            if (oscillator && oscillator.state === "running") {
+            oscillator.stop();
+            }
+            if (oscillator) {
+                oscillator.disconnect();
+            }
+            clearInterval(repetition);
         };
-    }, []);
+    }, [audioContext, frequency, fadeOutTime, repetitionTime]);
 
-    //Play the new context.
     
-
-    beepTime(frequency, fadeOutTime, repetitionTime);
-    
-
     //Functions for to handle changes from the sliders.
     //------------------------------
     //When using the frequency slider.
@@ -161,6 +173,7 @@ export const Osc = (props) => {
     const sliderStyleInput = "range accent-black";
     const sliderStyleInfo = "flex justify-between align-middle mt-1";
 
+
     return (
         <div className="" style={backgroundPreview}>
             <div>
@@ -191,7 +204,7 @@ export const Osc = (props) => {
                     <label className={`${sliderStyleLabel}`}>
                         <input
                             type="range"
-                            min="0"
+                            min="0.01"
                             max="16"
                             step="0.01"
                             value={fadeOutTime}
@@ -206,7 +219,7 @@ export const Osc = (props) => {
                     <label className={`${sliderStyleLabel}`}>
                         <input
                             type="range"
-                            min="0"
+                            min="0.01"
                             max="16"
                             step="0.01"
                             value={repetitionTime}
