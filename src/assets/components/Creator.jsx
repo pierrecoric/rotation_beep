@@ -102,7 +102,7 @@ export const Creator = (props) => {
     }
 
     return (
-        <div className="border-4 border-black" style={backgroundPreview}>
+        <div className="" style={backgroundPreview}>
             <div>
                 <div className="flex justify-center mt-8">
                     <div className="w-[150px] h-[150px] rounded-full" style={rotationStyle}></div>

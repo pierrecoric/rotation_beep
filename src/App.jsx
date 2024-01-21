@@ -54,11 +54,11 @@ function App() {
 
   return (
     <>
-      <main className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 '>
+      <main className='grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 '>
         <Creator addOscillatorComponent={addOscillatorComponent}/>
         {oscillatorsComponent} 
       </main>
-      <div className="h-[50px]"></div>
+      <div className="h-[100px]"></div>
       <Footer />
     </>
   );

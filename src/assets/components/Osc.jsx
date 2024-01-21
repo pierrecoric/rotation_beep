@@ -196,7 +196,7 @@ export const Osc = (props) => {
         <div className="" style={backgroundPreview}>
             <div>
                 <div className="flex justify-center mt-8">
-                    <div className="w-[150px] h-[150px] rounded-full" key={remountKey} style={rotationStyle}></div>
+                    <div className="w-[120px] h-[120px] rounded-full" key={remountKey} style={rotationStyle}></div>
                 </div>
                 <div className="w-full h-[20px] flex align-middle justify-center">
                     <div className="w-[5px] h-[20px] bg-white"></div>
